@@ -1,0 +1,255 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "color": "green", "value": null },
+            { "color": "red", "value": 1 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Deadlocks Detected",
+      "type": "stat",
+      "targets": [{
+        "expr": "deadlock_agent_deadlocks_detected_total",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "color": "blue", "value": null }
+          ]}
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Diagnosed",
+      "type": "stat",
+      "targets": [{
+        "expr": "deadlock_agent_deadlocks_diagnosed_total",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "color": "green", "value": null }
+          ]}
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Fixed (Approved)",
+      "type": "stat",
+      "targets": [{
+        "expr": "deadlock_agent_deadlocks_fixed_total",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "color": "orange", "value": null },
+            { "color": "red", "value": 3 }
+          ]}
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Pending Approval",
+      "type": "stat",
+      "targets": [{
+        "expr": "deadlock_agent_deadlocks_pending_approval",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "color": "green", "value": null }
+          ]}
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Agent Scans",
+      "type": "stat",
+      "targets": [{
+        "expr": "deadlock_agent_scans_total",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "pointSize": 5,
+            "showPoints": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "detected" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" }}]
+          },
+          {
+            "matcher": { "id": "byName", "options": "fixed" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" }}]
+          },
+          {
+            "matcher": { "id": "byName", "options": "diagnosed" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" }}]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "list" }, "tooltip": { "mode": "multi" } },
+      "title": "Deadlock Events Over Time",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "deadlock_agent_deadlocks_detected_total", "legendFormat": "detected", "refId": "A" },
+        { "expr": "deadlock_agent_deadlocks_diagnosed_total", "legendFormat": "diagnosed", "refId": "B" },
+        { "expr": "deadlock_agent_deadlocks_fixed_total", "legendFormat": "fixed", "refId": "C" }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 4 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "list" }, "tooltip": { "mode": "single" } },
+      "title": "PostgreSQL Active Connections",
+      "type": "timeseries",
+      "targets": [{
+        "expr": "pg_stat_activity_count",
+        "legendFormat": "{{ state }}",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list" }, "tooltip": { "mode": "single" } },
+      "title": "Agent Scan Activity",
+      "type": "timeseries",
+      "targets": [{
+        "expr": "rate(deadlock_agent_scans_total[1m])",
+        "legendFormat": "scans/sec",
+        "refId": "A"
+      }]
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "steps": [
+            { "color": "green", "value": null },
+            { "color": "yellow", "value": 50 },
+            { "color": "red", "value": 80 }
+          ]},
+          "max": 100, "min": 0
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 12 },
+      "id": 9,
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "title": "Database Connection Utilization %",
+      "type": "gauge",
+      "targets": [{
+        "expr": "(sum(pg_stat_activity_count) / 100) * 100",
+        "legendFormat": "utilization",
+        "refId": "A"
+      }]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["deadlock", "agent", "demo"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "title": "Deadlock Agent Dashboard",
+  "uid": "deadlock-agent-demo"
+}

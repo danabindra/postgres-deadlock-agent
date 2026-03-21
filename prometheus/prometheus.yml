@@ -1,0 +1,18 @@
+# Prometheus Configuration
+# Scrapes metrics from the deadlock agent and PostgreSQL exporter
+
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  # Deadlock Agent metrics (custom counters)
+  - job_name: 'deadlock-agent'
+    static_configs:
+      - targets: ['agent:9090']
+    metrics_path: /metrics
+
+  # PostgreSQL metrics (via postgres_exporter)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['pg-exporter:9187']

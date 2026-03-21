@@ -1,0 +1,10 @@
+.DS_Store
+clips/
+clip1.mp4
+*.mov
+*.MOV
+*.mp4
+.env
+__pycache__/
+*.pyc
+.venv/

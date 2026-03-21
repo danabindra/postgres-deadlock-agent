@@ -1,0 +1,170 @@
+# ══════════════════════════════════════════════════════════
+# Deadlock Demo Lab: Full Stack
+#
+# Components:
+#   postgres      - The database (Oracle stand-in)
+#   generator     - The "broken app" that causes deadlocks
+#   agent         - The product: detects, diagnoses, fixes
+#   dashboard     - Approval web UI + metrics endpoint
+#   prometheus    - Scrapes metrics from agent + postgres
+#   grafana       - Visual dashboard (the wow factor)
+#   pg-exporter   - Exports PostgreSQL metrics to Prometheus
+#
+# Ollama runs on your Mac host (already installed)
+#
+# Start:  docker compose up --build -d
+# Watch:  open http://localhost:3000 (Grafana)
+# Stop:   docker compose down -v
+# ══════════════════════════════════════════════════════════
+
+services:
+
+  # ── PostgreSQL: The Database ────────────────────────────
+  postgres:
+    image: postgres:16
+    hostname: postgres
+    environment:
+      POSTGRES_DB: demoapp
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: apppass
+    volumes:
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command: >
+      postgres
+        -c log_lock_waits=on
+        -c deadlock_timeout=1s
+        -c log_min_duration_statement=0
+        -c log_statement=all
+        -c logging_collector=on
+        -c log_directory=/var/log/postgresql
+        -c log_filename=postgresql.log
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d demoapp"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - demo-net
+
+  # ── PostgreSQL Exporter: DB Metrics → Prometheus ────────
+  pg-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    hostname: pg-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://app:apppass@postgres:5432/demoapp?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "9187:9187"
+    networks:
+      - demo-net
+
+  # ── Deadlock Generator: The Broken App ──────────────────
+  generator:
+    build:
+      context: .
+      dockerfile: generator/Dockerfile
+    hostname: generator
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: demoapp
+      DB_USER: app
+      DB_PASS: apppass
+      DEADLOCK_INTERVAL: 120  # seconds between deadlocks
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - demo-net
+
+  # ── Deadlock Agent: The Product ─────────────────────────
+  agent:
+    build:
+      context: .
+      dockerfile: agent/Dockerfile
+    hostname: agent
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: demoapp
+      DB_USER: app
+      DB_PASS: apppass
+      OLLAMA_URL: http://host.docker.internal:11434/api/generate
+      OLLAMA_MODEL: mistral
+      SCAN_INTERVAL: 15  # seconds between scans
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      DASHBOARD_URL: http://dashboard:8080
+    ports:
+      - "9090:9090"  # metrics endpoint for Prometheus
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - demo-net
+
+  # ── Approval Dashboard: The Human Gate ──────────────────
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    hostname: dashboard
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: demoapp
+      DB_USER: app
+      DB_PASS: apppass
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - demo-net
+
+  # ── Prometheus: Metrics Collection ──────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    hostname: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - promdata:/prometheus
+    ports:
+      - "9091:9090"
+    depends_on:
+      - agent
+      - pg-exporter
+    networks:
+      - demo-net
+
+  # ── Grafana: Visual Dashboard ───────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    hostname: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: demo
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafdata:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - demo-net
+
+volumes:
+  pgdata:
+  promdata:
+  grafdata:
+
+networks:
+  demo-net:
+    driver: bridge
