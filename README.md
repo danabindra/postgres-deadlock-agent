@@ -27,8 +27,8 @@ Full stack runs under Docker Compose.
 
 
 #  (Optional) Set up Slack webhook in future
-cp .env.example .env
-# Edit .env and paste your Slack webhook URL
+
+
 
 
 ## Architecture
