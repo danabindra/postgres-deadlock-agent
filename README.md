@@ -1,3 +1,13 @@
+# POV
+
+I deliberately chose database administration as the domain for this project because I have no background in it. My SME areas are infrastructure,  cloud,  network engineering, yada ...no DBA experience. The point was to stay unfamiliar so I couldn't shortcut the problem with domain intuition, and the model had to actually carry the diagnostic weight.
+
+The target user isn't a senior DBA. A senior DBA already knows what `pg_locks` means. They've seen deadlocks a hundred times. They don't need an agent just the data.
+
+The target user could  the backend engineer at a 15-person company who suddenly owns the database. Or the junior DBA seeing this class of error for the first time. They get a production alert...and then what.  The agent does the observation, builds the evidence, runs it through an LLM for diagnosis, and puts a single approve/dismiss decision in front of the human. No SSH. No manual SQL. 
+
+
+
 # Deadlock Lab (common issue seen in legacy monolithic app)
 
 Mistral LLM is used for database deadlock detection, diagnosis, and remediation.
