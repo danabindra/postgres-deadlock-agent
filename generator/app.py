@@ -1,5 +1,5 @@
 """
-Deadlock Generator: The "Broken App"
+Deadlock Generator: This app can simulate any application that fetches to a database
 
 Simulates a monolith application with a classic lock ordering
 bug. Two threads update the same two tables in opposite order,
@@ -13,7 +13,7 @@ Thread A: UPDATE orders → UPDATE inventory  (holds orders lock, wants inventor
 Thread B: UPDATE inventory → UPDATE orders  (holds inventory lock, wants orders)
 
 Result: deadlock. PostgreSQL kills one. The other completes.
-This is the exact pattern seen in production monolith apps.
+
 """
 
 import os
