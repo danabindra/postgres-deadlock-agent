@@ -1,4 +1,3 @@
-# ══════════════════════════════════════════════════════════
 # Deadlock Demo Lab: Full Stack
 #
 # Components:
@@ -15,11 +14,10 @@
 # Start:  docker compose up --build -d
 # Watch:  open http://localhost:3000 (Grafana)
 # Stop:   docker compose down -v
-# ══════════════════════════════════════════════════════════
 
 services:
 
-  # ── PostgreSQL: The Database ────────────────────────────
+  # PostgreSQL: Database
   postgres:
     image: postgres:16
     hostname: postgres
@@ -49,7 +47,7 @@ services:
     networks:
       - demo-net
 
-  # ── PostgreSQL Exporter: DB Metrics → Prometheus ────────
+  # PostgreSQL Exporter: DB Metrics → Prometheus
   pg-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter:latest
     hostname: pg-exporter
@@ -63,7 +61,7 @@ services:
     networks:
       - demo-net
 
-  # ── Deadlock Generator: The Broken App ──────────────────
+  # Deadlock Generator: The Broken App
   generator:
     build:
       context: .
@@ -82,7 +80,7 @@ services:
     networks:
       - demo-net
 
-  # ── Deadlock Agent: The Product ─────────────────────────
+  # Deadlock Agent: The Product
   agent:
     build:
       context: .
@@ -107,7 +105,7 @@ services:
     networks:
       - demo-net
 
-  # ── Approval Dashboard: The Human Gate ──────────────────
+  # Approval Dashboard: The Human Gate
   dashboard:
     build:
       context: .
@@ -127,7 +125,7 @@ services:
     networks:
       - demo-net
 
-  # ── Prometheus: Metrics Collection ──────────────────────
+  # Prometheus: Metrics Collection
   prometheus:
     image: prom/prometheus:latest
     hostname: prometheus
@@ -142,7 +140,7 @@ services:
     networks:
       - demo-net
 
-  # ── Grafana: Visual Dashboard ───────────────────────────
+  # Grafana: Visual Dashboard
   grafana:
     image: grafana/grafana:latest
     hostname: grafana

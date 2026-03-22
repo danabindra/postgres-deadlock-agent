@@ -4,9 +4,7 @@ Approval Dashboard: Approval Gate
 A simple web page that shows pending deadlock events and
 lets the operator approve or dismiss fixes.
 
-Polls the agent's /pending endpoint for new events.
-When the operator clicks Approve, calls the agent's
-/approve/{event_id} endpoint.
+
 """
 
 import os

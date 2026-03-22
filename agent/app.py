@@ -34,9 +34,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ═══════════════════════════════════════════════════════════
 # CONFIGURATION
-# ═══════════════════════════════════════════════════════════
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
     "port": int(os.getenv("DB_PORT", "5432")),
@@ -50,9 +48,7 @@ SCAN_INTERVAL = int(os.getenv("SCAN_INTERVAL", "15"))
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL", "")
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "http://localhost:8080")
 
-# ═══════════════════════════════════════════════════════════
 # PROMETHEUS METRICS (simple counters exposed via HTTP)
-# ═══════════════════════════════════════════════════════════
 metrics = {
     "deadlocks_detected_total": 0,
     "deadlocks_diagnosed_total": 0,
@@ -136,10 +132,8 @@ def start_metrics_server():
     server.serve_forever()
 
 
-# ═══════════════════════════════════════════════════════════
 # TOOL CHAIN (OBSERVE PHASE)
 # Deterministic. Same queries every time. No variation.
-# ═══════════════════════════════════════════════════════════
 
 def get_db_connection():
     """Create a database connection."""
@@ -335,9 +329,7 @@ def tool_check_deadlock_history() -> dict:
     }
 
 
-# ═══════════════════════════════════════════════════════════
 # LLM REASONING (REASON PHASE)
-# ═══════════════════════════════════════════════════════════
 
 def reason_over_evidence(tool_results: list) -> str:
     """Send all tool output to Ollama for diagnosis."""
@@ -389,9 +381,7 @@ Keep your response under 200 words."""
         return f"LLM error: {e}"
 
 
-# ═══════════════════════════════════════════════════════════
 # ALERTING (Slack)
-# ═══════════════════════════════════════════════════════════
 
 def send_slack_alert(event_id: int, diagnosis: str, lock_data: dict):
     """Post a rich alert to Slack with the diagnosis."""
@@ -441,9 +431,7 @@ def send_slack_alert(event_id: int, diagnosis: str, lock_data: dict):
         log.error(f"Slack alert failed: {e}")
 
 
-# ═══════════════════════════════════════════════════════════
 # FIX EXECUTION (ACT PHASE - only after approval)
-# ═══════════════════════════════════════════════════════════
 
 def execute_fix(event: dict):
     """
@@ -485,9 +473,7 @@ def execute_fix(event: dict):
         log.error(f"Event {event_id}: fix failed - {e}")
 
 
-# ═══════════════════════════════════════════════════════════
 # MAIN SCAN LOOP
-# ═══════════════════════════════════════════════════════════
 
 def log_deadlock_event(diagnosis: str, lock_data: dict) -> int:
     """Record the deadlock in our tracking table, return event_id."""

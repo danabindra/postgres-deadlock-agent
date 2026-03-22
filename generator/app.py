@@ -1,19 +1,10 @@
 """
 Deadlock Generator: This app can simulate any application that fetches to a database
 
-Simulates a monolith application with a classic lock ordering
-bug. Two threads update the same two tables in opposite order,
-creating a deadlock that PostgreSQL detects and resolves by
-killing one session.
-
+Simulates a monolith application with a classic lock ordering bug.
+Two threads update the same two tables in opposite order, creating
+a deadlock that PostgreSQL detects and resolves by killing one session.
 This runs on a timer and creates a real deadlock every N seconds.
-The agent's job is to detect these, diagnose them, and fix them.
-
-Thread A: UPDATE orders → UPDATE inventory  (holds orders lock, wants inventory)
-Thread B: UPDATE inventory → UPDATE orders  (holds inventory lock, wants orders)
-
-Result: deadlock. PostgreSQL kills one. The other completes.
-
 """
 
 import os
