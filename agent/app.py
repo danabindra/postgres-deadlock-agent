@@ -341,25 +341,58 @@ def reason_over_evidence(tool_results: list) -> str:
             f"```json\n{json.dumps(r, indent=2, default=str)}\n```"
         )
 
-    prompt = f"""You are a database diagnostic agent analyzing a potential deadlock.
-Multiple tools have collected evidence from a PostgreSQL database.
-Analyze the evidence and provide a diagnosis.
+    prompt = f"""You are a database diagnostic agent analyzing a PostgreSQL deadlock.
+The following evidence was collected from pg_stat_activity and pg_locks.
+Respond using ONLY the XML structure below. Do not include any text outside the tags.
 
 # Evidence
 
 {chr(10).join(evidence)}
 
-# Instructions
+# Required Response Format
 
-1. Is there an active deadlock or lock contention?
-2. Which sessions are involved and what are they doing?
-3. Which tables are in the lock conflict?
-4. Is this a recurring pattern (check history)?
-5. What is the root cause?
-6. Recommended fix: which session should be terminated?
+<deadlock_summary>
+One sentence: which transactions deadlocked and on which resources.
+</deadlock_summary>
 
-Be specific. Reference PIDs, table names, and SQL statements.
-Keep your response under 200 words."""
+<transactions>
+For each session involved provide a txn block:
+  <txn id="[pid]">
+    <operation>SELECT/UPDATE/DELETE/INSERT and the target table</operation>
+    <locks_held>Lock type and resource currently held</locks_held>
+    <locks_waiting>Lock type and resource it is blocked on</locks_waiting>
+    <query>The SQL statement if available</query>
+    <session_info>PID, user, application name</session_info>
+  </txn>
+</transactions>
+
+<cycle>
+The circular wait chain using actual PIDs and table names from the evidence.
+</cycle>
+
+<root_cause>
+Why this deadlock formed. Name the specific pattern: lock ordering violation,
+escalation conflict, index contention, foreign key cascade, or application anti-pattern.
+Reference specific PIDs and tables.
+</root_cause>
+
+<victim>
+Which session was chosen as the deadlock victim and the recommended session to terminate.
+</victim>
+
+<fix>
+  <immediate>What to do right now to unblock the situation.</immediate>
+  <structural>Code or schema changes that eliminate this class of deadlock.</structural>
+  <query_rewrite>Corrected SQL or transaction ordering if applicable.</query_rewrite>
+</fix>
+
+<blast_radius>
+What else this deadlock affects: blocked sessions, downstream timeouts, connection pool pressure.
+</blast_radius>
+
+<confidence>
+HIGH, MEDIUM, or LOW. If not HIGH, list what additional information would raise it.
+</confidence>"""
 
     try:
         response = requests.post(
@@ -368,7 +401,7 @@ Keep your response under 200 words."""
                 "model": OLLAMA_MODEL,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.2, "num_predict": 512},
+                "options": {"temperature": 0.2, "num_predict": 1024},
             },
             timeout=120,
         )
