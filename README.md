@@ -36,10 +36,20 @@ Full stack runs under Docker Compose.
   ```
 
 
-#  (Optional) Set up Slack webhook in future
+## XML Structured Output (branch: xml-structured-output)
 
+Changed the visual presentation of the response to layout the diagnosis cleaner. Updated LLM response to XML structured response instead of free form text. Mistral returns diagnosis in a tag schema:
 
+- `<deadlock_summary>` — what deadlocked and on what
+- `<transactions>` — per session breakdown with locks held, locks waiting, SQL, PID
+- `<cycle>` — circular wait chain, IDs
+- `<root_cause>` — named pattern: lock ordering violation, escalation, index contention, etc.
+- `<victim>` — which session was killed, which to terminate
+- `<fix>` — sub-tags: `<immediate>`, `<structural>`, `<query_rewrite>`
+- `<blast_radius>` — blocked sessions, pool pressure, timeouts
+- `<confidence>` — HIGH / MEDIUM / LOW reasoning
 
+Deadlock dashboard was updated to parse the XML, render each section as a distinct block.
 
 ## Architecture
 
